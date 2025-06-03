@@ -75,7 +75,6 @@ public class IcebergTypeUtils {
             case DECIMAL:
                 return Types.DecimalType.of(precision, scale);
             case TINYINT:
-                return new Types.BooleanType();
             case SMALLINT:
             case INTEGER:
                 return new Types.IntegerType();
@@ -140,12 +139,6 @@ public class IcebergTypeUtils {
                                     decimalData.toBigDecimal(), precision, decimalScale);
                         };
                 break;
-            case TINYINT:
-                fieldGetter = row -> row.getBoolean(fieldPos);
-                break;
-            case SMALLINT:
-                fieldGetter = row -> row.getInt(fieldPos);
-                break;
             case BIGINT:
                 fieldGetter = row -> row.getLong(fieldPos);
                 break;
@@ -156,6 +149,8 @@ public class IcebergTypeUtils {
                 fieldGetter = row -> row.getDouble(fieldPos);
                 break;
             case INTEGER:
+            case TINYINT:
+            case SMALLINT:
             case DATE:
             case TIME_WITHOUT_TIME_ZONE:
                 fieldGetter = (row) -> row.getInt(fieldPos);
