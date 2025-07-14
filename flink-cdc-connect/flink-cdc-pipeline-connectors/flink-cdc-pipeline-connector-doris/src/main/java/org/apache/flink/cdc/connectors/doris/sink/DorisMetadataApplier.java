@@ -184,9 +184,10 @@ public class DorisMetadataApplier implements MetadataApplier {
         for (String columnName : columnNameList) {
             Column column = schema.getColumn(columnName).get();
             String typeString;
-            if (column.getType() instanceof LocalZonedTimestampType
+            boolean isTimeType=column.getType() instanceof LocalZonedTimestampType
                     || column.getType() instanceof TimestampType
-                    || column.getType() instanceof ZonedTimestampType) {
+                    || column.getType() instanceof ZonedTimestampType;
+            if (isTimeType) {
                 int precision = DataTypeChecks.getPrecision(column.getType());
                 typeString =
                         String.format("%s(%s)", "DATETIMEV2", Math.min(Math.max(precision, 0), 6));
@@ -195,12 +196,18 @@ public class DorisMetadataApplier implements MetadataApplier {
                         DorisTypeMapper.toDorisType(
                                 DataTypeUtils.toFlinkDataType(column.getType()));
             }
+
+            String defaultExpr = column.getDefaultValueExpression();
+            if (isTimeType && defaultExpr != null && defaultExpr.contains("0000-00-00")) {
+                defaultExpr = "'1970-01-01 00:00:00'";
+            }
+
             fieldSchemaMap.put(
                     column.getName(),
                     new FieldSchema(
                             column.getName(),
                             typeString,
-                            column.getDefaultValueExpression(),
+                            defaultExpr,
                             column.getComment()));
         }
         return fieldSchemaMap;
