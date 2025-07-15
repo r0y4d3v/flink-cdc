@@ -197,17 +197,11 @@ public class DorisMetadataApplier implements MetadataApplier {
                                 DataTypeUtils.toFlinkDataType(column.getType()));
             }
 
-            String defaultExpr = column.getDefaultValueExpression();
-            if (isTimeType && defaultExpr != null && defaultExpr.contains("0000-00-00")) {
-                defaultExpr = "'1970-01-01 00:00:00'";
-            }
-
             fieldSchemaMap.put(
                     column.getName(),
                     new FieldSchema(
                             column.getName(),
                             typeString,
-                            defaultExpr,
                             column.getComment()));
         }
         return fieldSchemaMap;
